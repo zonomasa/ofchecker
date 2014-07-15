@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
 #include <features.h>
+#include <string.h>
+#include <execinfo.h>
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <malloc.h>
@@ -9,7 +11,7 @@
 #define _MEMALIGN
 #endif
 
-#define REDZONE_SIZE 8
+#define REDZONE_SIZE (8 + sizeof(size_t))
 #define MAGIC_BYTE 0x5a
 
 static void *(* real_malloc)(size_t size);
@@ -40,7 +42,7 @@ malloc(size_t size)
 {
     static int  initializing = 0;
     size_t      usable;
-    void       *ret;
+    void       *ptr, *p;
 
     while(real_malloc == NULL){
         if(!initializing){
@@ -51,34 +53,72 @@ malloc(size_t size)
         sched_yield();
     }
 
-    size += REDZONE_SIZE;
-    ret = real_malloc(size);
+    ptr = real_malloc(size + REDZONE_SIZE + sizeof(size_t));
 
-    usable = malloc_usable_size(ret);
-    memset(ret + (usable - REDZONE_SIZE), MAGIC_BYTE, REDZONE_SIZE);
+    usable = malloc_usable_size(ptr);
+
+/*
+  0         1         2         3
+  0123456789012345678901234567890123456789
+  HHHHHHHHUUUUUUUPPPPPPPPPRRRRRRRRSSSSSSSS
+  H:8 (TODO)
+  U:
+  P:
+  R:8
+  S:sizeof(size_t)
+*/
+
+    p = ptr + size; /* end of user region */
+
+    memset(p, MAGIC_BYTE, (usable - size - 8 - sizeof(size_t)));
+    p = ptr + usable - 8 - sizeof(size_t);
+    *(size_t *)p = size;
 
 
 #if 1
     int i;
-    for (i = 0; i < REDZONE_SIZE; i++){
-        printf("%02x", *(int*)((char *)(ret + (usable - REDZONE_SIZE))+i) & 0x000000ff);
-    }
+    for (i = 0; i < (usable - size - 8 - sizeof(size_t)); i++)
+        printf("%02x", *(int*)((char *)(ptr + size) + i) & 0x000000ff);
     putchar('\n');
 #endif
 
-    return ret;
+    return ptr;
 }
-/*
-012345678901
-******PPRRRR
-*/
+
 
 void
 free(void *ptr)
 {
-    size_t      usable;
+    unsigned int cnt = 0u;
+    size_t       usable;
+    size_t       size;
+    void        *p;
+    int          i;
 
-//    usable = malloc_usable_size(ret);
+    usable = malloc_usable_size(ptr);
+
+    p = ptr + usable - 8 - sizeof(size_t);
+    size = *(size_t *)p;
+
+#if 1
+    for (i = 0; i < (usable - size - 8 - sizeof(size_t)); i++)
+        printf("%02x", *(int*)((char *)(ptr + size) + i) & 0x000000ff);
+    putchar('\n');
+#endif 
+    for (i = 0; i < (usable - size - 8 - sizeof(size_t)); i++) {
+
+        if(*((char *)ptr + size + i) != MAGIC_BYTE)
+            cnt++;
+    }
+#if 1
+    printf("overflow count : %du\n", cnt);
+#endif
+
+    if(cnt){
+        void *trace[128];
+//        int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
+//        backtrace_symbols_fd(trace, n, 1);
+    }
 }
 
 
