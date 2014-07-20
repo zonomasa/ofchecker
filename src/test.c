@@ -5,9 +5,9 @@
 
 
 
-
 void
-overflow(void) {
+test_malloc(void)
+{
     char *ptr;
     int   i;
 
@@ -39,12 +39,30 @@ overflow(void) {
 }
 
 
+void
+test_realloc(void)
+{
+    char *ptr;
+    int   i;
+
+    ptr = (char *)malloc(7);
+    ptr = (char *)realloc(ptr, 8);
+    for (i = 0; i < 16; i++){
+        ptr[i] = 'a';
+    }
+    free(ptr);
+
+}
+
 int
 main(void)
 {
+    printf("#### malloc test ####\n");
 
-    printf("#### Overflow test ####\n");
-    overflow();
+    test_malloc();
 
+    printf("#### realloc test ####\n");
+
+//    test_realloc();
     return 0;
 }
