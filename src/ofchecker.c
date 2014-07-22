@@ -13,7 +13,7 @@
 #endif
 
 /**
-  Example of 7byte malloc.
+  Example of 7byte malloc with ofchecker.
     0         1         2         3
     0123456789012345678901234567890123456789
     HHHHHHHHUUUUUUUPPPPPPPPPRRRRRRRRSSSSSSSS
@@ -27,18 +27,16 @@
 /* RZ means Redzone, filled by MAGIC_BYTE */
 
 /* Macros for size */
-#define SIZEOF_MALLOC_H  8 /* TODO */                           /* 'H' */
-#define SIZEOF_RZ(u,s) (u - SIZEOF_MALLOC_H - s - SIZEOF_SIZE)  /* 'P' + 'R' */
+#define SIZEOF_RZ(u,s) (u - s - SIZEOF_SIZE)  /* 'P' + 'R' */
 #define SIZEOF_F_RZ (8U)                                        /* 'R' */
 #define SIZEOF_SIZE       sizeof(size_t)                        /* 'S' */
 
 /* Macros for pointer */
-#define P_RZ(p,u,s) (p + SEIZOF(u,s))                                    /* pointer of 'P' */
-#define P_F_RZ(p,u) (p + u - SIZEOF_MALLOC_H - SIZEOF_SIZE - SIZEOF_F_RZ) /* pointer of 'R' */
-#define P_SIZE(p,u) (p + u - SIZEOF_MALLOC_H - SIZEOF_SIZE) /* pointer of 'R' */
+#define P_RZ(p,u,s) (p + s)                             /* pointer of 'P' */
+#define P_F_RZ(p,u) (p + u - SIZEOF_SIZE - SIZEOF_F_RZ) /* pointer of 'R' */
+#define P_SIZE(p,u) (p + u - SIZEOF_SIZE) /* pointer of 'R' */
 
 #define MAGIC_BYTE 0x5a
-
 
 #define OFC_DUMP(p,u,s) do{                                             \
     int i;                                                              \

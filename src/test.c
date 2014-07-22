@@ -3,8 +3,6 @@
 #include <string.h>
 #include <mcheck.h>
 
-
-
 void
 test_malloc(void)
 {
