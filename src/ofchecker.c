@@ -115,7 +115,7 @@ free(void *ptr)
        info is maybe invalid */
     for (p = (char *)P_F_RZ(ptr, usable); p < (char *)P_F_RZ(ptr, usable) + SIZEOF_F_RZ; p++){
         if(*p != MAGIC_BYTE)
-        cnt++;
+            cnt++;
     }
 
     if (cnt == SIZEOF_F_RZ){
@@ -172,33 +172,15 @@ realloc(void *ptr, size_t size)
 
     /* ptr is NULL => malloc(size); */
 
-/*
-  0         1         2         3
-  0123456789012345678901234567890123456789
-  HHHHHHHHUUUUUUUPPPPPPPPPRRRRRRRRSSSSSSSS
-  H:8 (TODO)
-  U:
-  P:
-  R:8
-  S:sizeof(size_t)
-*/
-
     p = ptr + size; /* end of user region */
+    memset(p, MAGIC_BYTE, SIZEOF_RZ(usable, size));
 
-    memset(p, MAGIC_BYTE, (usable - size - 8 - sizeof(size_t)));
-    p = ptr + usable - 8 - sizeof(size_t);
+    p += SIZEOF_RZ(usable,size); /* end of redzone */
     *(size_t *)p = size;
 
-
-#ifdef OFC_DUMP
-    int i;
-    for (i = 0; i < (usable - size - 8 - sizeof(size_t)); i++)
-        printf("%02x", *(int*)((char *)(ptr + size) + i) & 0x000000ff);
-    putchar('\n');
-#endif
+    OFC_DUMP(ptr, usable, size);
 
     return ptr;
-    
 }
 
 

@@ -50,6 +50,27 @@ test_realloc(void)
     }
     free(ptr);
 
+    ptr = (char *)malloc(3);
+    ptr = (char *)realloc(ptr, 4);
+    for (i = 0; i < 8; i++){
+        ptr[i] = 'b';
+    }
+    free(ptr);
+
+    ptr = (char *)malloc(48);
+    ptr = (char *)realloc(ptr, 24);
+    for (i = 0; i < 32; i++){
+        ptr[i] = 'a';
+    }
+    free(ptr);
+
+    ptr = (char *)malloc(3);
+    ptr = (char *)realloc(ptr, 4);
+    for (i = 0; i > -1; i--){
+        ptr[i] = 'd';
+    }
+    free(ptr);
+
 }
 
 int
@@ -61,6 +82,6 @@ main(void)
 
     printf("#### realloc test ####\n");
 
-//    test_realloc();
+    test_realloc();
     return 0;
 }
