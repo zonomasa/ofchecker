@@ -50,7 +50,7 @@
 static void *(* real_malloc)(size_t size);
 static void  (* real_free)(void *ptr);
 static void *(* real_realloc)(void *ptr, size_t size);
-static void *(* real_calloc)(void *ptr, size_t size);
+static void *(* real_calloc)(size_t nmemb, size_t size);
 #ifdef _MEMALIGN
 static int   (* real_posix_memalign)(void *ptr, size_t size);
 #endif
@@ -76,6 +76,8 @@ malloc(size_t size)
 {
     size_t      usable;
     void       *ptr, *p;
+
+    printf("call malloc() \n");
 
     while(real_malloc == NULL){
         if(!initializing){
@@ -109,8 +111,14 @@ free(void *ptr)
     char        *p;
     int          i;
 
-    usable = malloc_usable_size(ptr);
+    /* If ptr is NULL, no operation is performed.*/
+    if (ptr == NULL)
+        return real_free(ptr);
 
+    printf("call free() \n");
+
+    usable = malloc_usable_size(ptr);
+    printf("usable size:%zu\n",usable);
     /* At the first, check fixed redzone. If overwritten, following size
        info is maybe invalid */
     for (p = (char *)P_F_RZ(ptr, usable); p < (char *)P_F_RZ(ptr, usable) + SIZEOF_F_RZ; p++){
@@ -153,6 +161,8 @@ realloc(void *ptr, size_t size)
     size_t   usable;
     void    *p;
 
+    printf("call realloc() \n");
+
     while(real_realloc == NULL){
         if(!initializing){
             initializing = 1;
@@ -187,10 +197,48 @@ realloc(void *ptr, size_t size)
 void *
 calloc(size_t nmemb, size_t size)
 {
+    printf("call calloc() \n");
+    size_t   newNmemb;
+    size_t   usable;
+    void    *ptr;
+    void    *p;
+
+    while(real_calloc == NULL){
+        if(!initializing){
+            initializing = 1;
+            __init();
+            initializing = 0;
+        }
+        sched_yield();
+    }
+
+
+    newNmemb = nmemb + ((SIZEOF_F_RZ + SIZEOF_SIZE - 1) / size + 1);
+
+    ptr = real_calloc(newNmemb ,size);
+
+    usable = malloc_usable_size(ptr);
+
+    /* corner cases */
+    /* size=0,ptr is not NULL => free(ptr); */
+
+
+    /* ptr is NULL => malloc(size); */
+
+    p = ptr + (size * nmemb); /* end of user region */
+    memset(p, MAGIC_BYTE, SIZEOF_RZ(usable, size * nmemb));
+
+    p += SIZEOF_RZ(usable,size * nmemb); /* end of redzone */
+    *(size_t *)p = size * nmemb;
+
+    OFC_DUMP(ptr, usable, size * nmemb);
+
+    return ptr;
 }
 
 
 int
 posix_memalign(void **memptr, size_t alignment, size_t size)
 {
+    printf("call posix_memalign() \n");
 }

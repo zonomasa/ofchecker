@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <mcheck.h>
+
 
 void
 test_malloc(void)
@@ -33,9 +33,27 @@ test_malloc(void)
     }
     free(ptr);
 
+    ptr = (char *)malloc(0);
+    free(ptr);
+
+    
+
+
     return;
 }
 
+
+void
+test_free(void)
+{
+
+    void *ptr;
+    printf("hoge\n");
+    ptr = NULL;
+    free(ptr);
+
+    return ;
+}
 
 void
 test_realloc(void)
@@ -73,6 +91,22 @@ test_realloc(void)
 
 }
 
+
+void
+test_calloc(void)
+{
+    char *ptr;
+    int   i;
+
+    ptr = (char *)calloc(6,144);
+    for (i = 0; i < 6*144; i++)
+        ptr[i] = 'b';
+
+    free(ptr);
+
+    return;
+}
+
 int
 main(void)
 {
@@ -83,5 +117,19 @@ main(void)
     printf("#### realloc test ####\n");
 
     test_realloc();
+
+    printf("#### calloc test ####\n");
+
+    test_calloc();
+
+    printf("#### free test ####\n");
+
+    test_free();
+
+
+    fflush(stdout);
+    printf("######################");
+    printf("#### End of Tests ####");
+    printf("######################");
     return 0;
 }
