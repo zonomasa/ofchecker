@@ -36,9 +36,6 @@ test_malloc(void)
     ptr = (char *)malloc(0);
     free(ptr);
 
-    
-
-
     return;
 }
 
@@ -125,7 +122,6 @@ main(void)
     printf("#### free test ####\n");
 
     test_free();
-
 
     fflush(stdout);
     printf("######################");
