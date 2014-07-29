@@ -115,10 +115,8 @@ free(void *ptr)
     if (ptr == NULL)
         return real_free(ptr);
 
-    printf("call free() \n");
-
     usable = malloc_usable_size(ptr);
-    printf("usable size:%zu\n",usable);
+
     /* At the first, check fixed redzone. If overwritten, following size
        info is maybe invalid */
     for (p = (char *)P_F_RZ(ptr, usable); p < (char *)P_F_RZ(ptr, usable) + SIZEOF_F_RZ; p++){
@@ -161,8 +159,6 @@ realloc(void *ptr, size_t size)
     size_t   usable;
     void    *p;
 
-    printf("call realloc() \n");
-
     while(real_realloc == NULL){
         if(!initializing){
             initializing = 1;
@@ -197,7 +193,6 @@ realloc(void *ptr, size_t size)
 void *
 calloc(size_t nmemb, size_t size)
 {
-    printf("call calloc() \n");
     size_t   newNmemb;
     size_t   usable;
     void    *ptr;
@@ -240,5 +235,4 @@ calloc(size_t nmemb, size_t size)
 int
 posix_memalign(void **memptr, size_t alignment, size_t size)
 {
-    printf("call posix_memalign() \n");
 }
