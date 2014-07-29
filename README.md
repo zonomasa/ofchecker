@@ -48,6 +48,5 @@ Contributing
 Copyright
 ---------
 
-Author::    TATEZONO Masaki
-Copyright:: Copyright (c) 2014 TATEZONO Masaki
-License::   Apache License, Version 2.0
+ * Copyright (c) 2014 TATEZONO Masaki
+ * License   Apache License, Version 2.0
