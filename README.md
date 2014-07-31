@@ -33,6 +33,9 @@ To use by LD_PRELOAD do:
 TODO
 ----
 
+ * Now Prototype version.
+   * Delete Debug message.
+   * Add posix_memalign.
 
 
 Contributing
