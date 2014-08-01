@@ -9,6 +9,11 @@ set(CMAKE_C_FLAGS_RELEASE "-Wall -Wextra -O2")
 # build options for debug
 set(CMAKE_C_FLAGS_RELEASE "-Wall -Wextra -g")
 
+add_library(ofcbt SHARED backtrace.c)
+
 add_library(ofc SHARED ofchecker.c)
 
 target_link_libraries(ofc ${CMAKE_DL_LIBS})
+target_link_libraries(ofc ofcbt)
+
+

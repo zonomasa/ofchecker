@@ -38,6 +38,8 @@
 
 #define MAGIC_BYTE 0x5a
 
+
+#ifdef OFC_DBG
 #define OFC_DUMP(p,u,s) do{                                             \
     int i;                                                              \
     for (i = 0; i < SIZEOF_RZ(u, s); i++)                               \
@@ -45,7 +47,11 @@
     putchar('\n');                                                      \
     fflush(stdout);                                                     \
     }while(0)
+#else
+#define OFC_DUMP(p,u,s)
+#endif
 
+#define OFC_DUMP_COUNT(c)  printf("<ofchecke> : Corrupted memory after payload : %zu byte\n", c);
 
 static void *(* real_malloc)(size_t size);
 static void  (* real_free)(void *ptr);
@@ -77,8 +83,6 @@ malloc(size_t size)
     size_t      usable;
     void       *ptr, *p;
 
-    printf("call malloc() \n");
-
     while(real_malloc == NULL){
         if(!initializing){
             initializing = 1;
@@ -106,7 +110,7 @@ malloc(size_t size)
 void
 free(void *ptr)
 {
-    unsigned int cnt = 0u;
+    size_t cnt = 0u;
     size_t       usable,size;
     char        *p;
     int          i;
@@ -138,15 +142,10 @@ free(void *ptr)
             cnt++;
     }
 
-#ifdef OFC_DUMP
-    printf("overflow count : %du\n", cnt);
-#endif
 
-    if(cnt){
-
-//        void *trace[128];
-//        int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
-//        backtrace_symbols_fd(trace, n, 1);
+    if (cnt){
+        OFC_DUMP_COUNT(cnt);
+        ofc_bt();
     }
 
     real_free(ptr);
@@ -206,7 +205,6 @@ calloc(size_t nmemb, size_t size)
         }
         sched_yield();
     }
-
 
     newNmemb = nmemb + ((SIZEOF_F_RZ + SIZEOF_SIZE - 1) / size + 1);
 
