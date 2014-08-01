@@ -1,7 +1,9 @@
 ofchecker
 =========
 
-Lightweight overflow checker
+Lightweight overflow checker.
+
+Simply detect memory corruption as we say OVERFLOW.
 
 
 Build from Source
@@ -17,7 +19,7 @@ Build from Source
     $ cmake .
     $ make
 
-Now that you have libofc.so in your 'src' dir.
+Now that you have libofc.so and libofcbt.so in your 'src' dir.
 
 
 Usage
@@ -27,7 +29,9 @@ You can use ofchecker by directly linking with your application or just use LD_P
 
 To use by LD_PRELOAD do:
 
-    $ LD_PRELOAD=./libofc.so $(your_application)
+    $ LD_PRELOAD="./src/libofc.so ./src/libofcbt.so" $(your_application)
+    for example:
+    $ LD_PRELOAD="./src/libofc.so ./src/libofcbt.so" vi
 
 
 TODO
