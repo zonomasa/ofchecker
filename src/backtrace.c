@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 
 void
 ofc_bt()
@@ -6,8 +6,8 @@ ofc_bt()
     void *trace[128];
     int n = backtrace(trace, sizeof(trace) / sizeof(trace[0]));
 
-    printf("****** Start backtrace ******\n");
+    fprintf(stderr,"****** Start backtrace ******\n");
     backtrace_symbols_fd(trace, n, 1);
-    printf("******* End backtrace *******\n");
+    fprintf(stderr,"******* End backtrace *******\n");
     return;
 }
