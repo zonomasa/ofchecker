@@ -3,11 +3,14 @@ cmake_minimum_required(VERSION 2.8.1)
 
 project(ofchecker C)
 
+# build options for default
+set(CMAKE_C_FLAGS "-Wall -Wextra -g")
+
 # build options for release
 set(CMAKE_C_FLAGS_RELEASE "-Wall -Wextra -O2 -g")
 
 # build options for debug
-set(CMAKE_C_FLAGS_RELEASE "-Wall -Wextra -g")
+set(CMAKE_C_FLAGS_DEBUG "-Wall -Wextra -g")
 
 link_directories(../src)
 
