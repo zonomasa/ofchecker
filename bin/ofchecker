@@ -5,15 +5,20 @@ echo $CURDIR
 
 LD_PRELOAD="./src/libofc.so ./src/libofcbt.so"  $* 2>&1|
 while read line; do
-#     if [[ "$line" =~ \[0x[0-9a-f]*\] ]];then
-# #        echo "$line" > /dev/stderr
-#         file=`echo $line | grep -o -E '^[^[]*'|grep -o -E '^[^(]*'`
-#         addr=`echo $line | grep -o -E '\[0x[0-9a-z]+\]'|sed -e 's/\[//g' -e 's/\]//g'`
-# #        echo $file
-# #        echo $addr
-#         addr2line -e $file $addr
-#     else
-#         echo "$line"
-#     fi
-    echo "$line"
+    if [[ "$line" =~ \[0x[0-9a-f]*\] ]];then
+#        echo "$line" > /dev/stderr
+        file=`echo $line | grep -o -E '^[^[]*'|grep -o -E '^[^(]*'`
+        addr=`echo $line | grep -o -E '\[0x[0-9a-z]+\]'|sed -e 's/\[//g' -e 's/\]//g'`
+#        echo $file
+#        echo $addr
+        ret=`addr2line -e $file $addr`
+        if [[ "$ret" =~ ^\?\? ]]; then
+            echo "$line" > /dev/stderr
+        else
+            echo "$ret"  > /dev/stderr
+        fi
+    else
+        echo "$line"   > /dev/stderr
+    fi
+#    echo "$line"
 done
