@@ -6,6 +6,14 @@ Lightweight overflow checker.
 Simply detect memory corruption as we say OVERFLOW.
 
 
+Detail
+------
+
+ofchecker detect spreading out of a region allocated by malloc() and suchlike.
+
+When you call malloc(), ofchecker simply add extra region(red-zone) after your paload filled by magic word, and when free(), check the red-zone wheter be overwritten or not.
+
+
 Build from Source
 -----------------
 
