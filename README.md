@@ -9,10 +9,43 @@ Simply detect memory corruption as we say OVERFLOW.
 Detail
 ------
 
-ofchecker detect spreading out of a region allocated by malloc() and suchlike.
+`ofchecker` detect overflow writing to a region allocated by malloc() and suchlike.
 
-When you call malloc(), ofchecker simply add extra region(red-zone) after your paload filled by magic word, and when free(), check the red-zone wheter be overwritten or not.
+Glibc malloc has similar mechanism MALLOC_CHECK_. It is easy to use and lightweight,
+and shows followings.
 
+```
+$ MALLOC_CHECK_=3 ./test/ofc_test
+*** Error in `./test/ofc_test': free(): invalid pointer: 0x000000000153c010 ***
+======= Backtrace: =========
+/lib/x86_64-linux-gnu/libc.so.6(+0x741cf)[0x7f9c96c3e1cf]
+/lib/x86_64-linux-gnu/libc.so.6(+0x82df6)[0x7f9c96c4cdf6]
+./test/ofc_test(test_malloc+0x45)[0x400a92]
+./test/ofc_test(main+0x13)[0x400d44]
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf5)[0x7f9c96bebec5]
+./test/ofc_test[0x400989]
+```
+
+`ofchecker` can show more infomation.
+
+```
+$ ./bin/ofchecker ./test/ofc_test
+<ofchecker> : Corrupted memory after payload : 9 byte
+<ofchecker> : Address : 0x1f32010
+<ofchecker> : Size : 7
+<ofchecker> : ***  Start backtrace ***
+./src/libofcbt.so(ofc_bt+0x18)[0x7f82df3bd7c8]
+./src/libofc.so(free+0xc8)[0x7f82df5bfc18]
+/home/tatezono/github/ofchecker/test/test.c:18
+/home/tatezono/github/ofchecker/test/test.c:114
+/lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0xf5)[0x7f82df018ec5]
+./test/ofc_test[0x400989]
+<ofchecker> : ***   End backtrace  ***
+```
+
+When you call malloc(), ofchecker simply add extra region(red-zone) after your payload filled by magic word, and when free(), check the red-zone wheter be overwritten or not.
+
+ofchecker provides glibc like malloc(), calloc(), realloc() and free(). The functions creates or checks red-zone and then call glibc real malloc()(or calloc(), realloc(), free()). So you can use ofchecker by linking to your applications directly or by LD_PRELOAD.
 
 Build from Source
 -----------------
@@ -39,8 +72,12 @@ To use by LD_PRELOAD do:
 
     $ LD_PRELOAD="./src/libofc.so ./src/libofcbt.so" $(your_application)
     for example:
-    $ LD_PRELOAD="./src/libofc.so ./src/libofcbt.so" vi
+    $ LD_PRELOAD="./src/libofc.so ./src/libofcbt.so" ./test/ofc_test
 
+Furthermore you can use `bin/ofchecker` which be able to use LD_PRELOAD easily, and
+convert backtrace infomation to user friendly style.
+
+    $ ./bin/ofchecker ./test/ofc_test
 
 TODO
 ----

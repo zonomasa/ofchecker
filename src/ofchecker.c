@@ -46,6 +46,7 @@
 #define OFC_DUMP(p,u,s)
 #endif
 #define OFC_DUMP_COUNT(c)  fprintf(stderr, "<ofchecker> : Corrupted memory after payload : %zu byte\n", c);
+#define OFC_DUMP_INFO(p,s) fprintf(stderr, "<ofchecker> : Address : %p\n<ofchecker> : Size : %zu\n", p,s);
 #define OFC_UNUSE(u) (u = u)
 
 static void *(* real_malloc)(size_t size);
@@ -134,6 +135,7 @@ free(void *ptr)
     }
     if (cnt){
         OFC_DUMP_COUNT(cnt);
+        OFC_DUMP_INFO(ptr,size);
         ofc_bt();
     }
     real_free(ptr);
