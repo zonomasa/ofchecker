@@ -27,6 +27,15 @@ test_malloc(void)
     }
     free(ptr);
 
+
+    /* over fixed-redzone and break size info */
+    ptr = (char *)malloc(24);
+    for (i = 0; i < 32; i++){
+        ptr[i] = 'a';
+    }
+    free(ptr);
+
+
     ptr = (char *)malloc(24);
     for (i = 0; i > -1; i--){
         ptr[i] = 'd';

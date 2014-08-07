@@ -46,6 +46,7 @@
 #define OFC_DUMP(p,u,s)
 #endif
 #define OFC_DUMP_COUNT(c)  fprintf(stderr, "<ofchecker> : Corrupted memory after payload : %zu byte\n", c);
+#define OFC_DUMP_COUNT_MAYBE(c)  fprintf(stderr, "<ofchecker> : Corrupted memory after payload : %zu byte and more\n", c);
 #define OFC_DUMP_INFO(p,s) fprintf(stderr, "<ofchecker> : Address : %p\n<ofchecker> : Size : %zu\n", p,s);
 #define OFC_UNUSE(u) (u = u)
 
@@ -124,7 +125,11 @@ free(void *ptr)
             cnt++;
     }
     if (cnt == SIZEOF_F_RZ){
-        /* TODO Maybe size info is invalid */
+        /* Maybe size info was broken */
+        OFC_DUMP_COUNT_MAYBE(cnt);
+        ofc_bt();
+        real_free(ptr);
+        return;
     }
     size = *(size_t *)P_SIZE(ptr, usable);
     OFC_DUMP(ptr, usable, size);
