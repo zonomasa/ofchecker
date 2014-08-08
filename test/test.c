@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <assert.h>
 
 void
 test_malloc(void)
@@ -94,6 +94,14 @@ test_realloc(void)
         ptr[i] = 'd';
     }
     free(ptr);
+
+    /* corner case :size = 0 */
+    ptr = (char *)malloc(3);
+    ptr = (char *)realloc(ptr, 0);
+    for (i = 0; i > -1; i--){
+        ptr[i] = 'd';
+    }
+    assert (ptr != NULL);
 
 }
 
