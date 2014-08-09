@@ -9,6 +9,15 @@ test_malloc(void)
     char *ptr;
     int   i;
 
+    /* TODO */
+    printf ("case 1\n");
+    ptr = (char *)malloc(0);
+    for (i = 0; i < 16; i++){
+        ptr[i] = 'a';
+    }
+    free(ptr);
+
+    printf ("case 2\n");
     ptr = (char *)malloc(7);
     for (i = 0; i < 16; i++){
         ptr[i] = 'a';
@@ -111,6 +120,20 @@ test_calloc(void)
 {
     char *ptr;
     int   i;
+
+    /* TODO */
+    ptr = (char *)calloc(0,144);
+    for (i = 0; i < 6*144; i++)
+        ptr[i] = 'b';
+
+    free(ptr);
+
+    /* TODO */
+    ptr = (char *)calloc(6,0);
+    for (i = 0; i < 6*144; i++)
+        ptr[i] = 'b';
+
+    free(ptr);
 
     ptr = (char *)calloc(6,144);
     for (i = 0; i < 6*144; i++)

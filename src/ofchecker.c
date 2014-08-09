@@ -173,7 +173,7 @@ realloc(void *ptr, size_t size)
     usable = malloc_usable_size(ptr);
     /* corner cases */
 
-        /* ptr is NULL => malloc(size); */
+    /* ptr is NULL => malloc(size); */
     p = ptr + size; /* end of user region */
     memset(p, MAGIC_BYTE, SIZEOF_RZ(usable, size));
     p += SIZEOF_RZ(usable,size); /* end of redzone */
@@ -201,8 +201,9 @@ calloc(size_t nmemb, size_t size)
     ptr = real_calloc(newNmemb ,size);
     usable = malloc_usable_size(ptr);
     /* TODO corner cases */
-    /* size=0,ptr is not NULL => free(ptr); */
-    /* ptr is NULL => malloc(size); */
+    /* When size=0 or nmemb=0, */
+    /* malloc() maybe return minimum block, */
+    /* so following routine is invalid */
     p = ptr + (size * nmemb); /* end of user region */
     memset(p, MAGIC_BYTE, SIZEOF_RZ(usable, size * nmemb));
     p += SIZEOF_RZ(usable,size * nmemb); /* end of redzone */
