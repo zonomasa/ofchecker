@@ -99,7 +99,7 @@ test_realloc(void)
 
     ptr = (char *)malloc(3);
     ptr = (char *)realloc(ptr, 4);
-    for (i = 0; i > -1; i--){
+    for (i = 0; i > 8; i--){
         ptr[i] = 'd';
     }
     free(ptr);
@@ -107,7 +107,7 @@ test_realloc(void)
     /* corner case :size = 0 */
     ptr = (char *)malloc(3);
     ptr = (char *)realloc(ptr, 0);
-    for (i = 0; i > -1; i--){
+    for (i = 0; i > 3; i--){
         ptr[i] = 'd';
     }
     assert (ptr != NULL);
