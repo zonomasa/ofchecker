@@ -197,13 +197,18 @@ calloc(size_t nmemb, size_t size)
         }
         sched_yield();
     }
-    newNmemb = nmemb + ((SIZEOF_F_RZ + SIZEOF_SIZE - 1) / size + 1);
+
+    if ((size * nmemb) == 0){
+        /* corner cases */
+        /* When size=0 or nmemb=0, */
+        /* malloc() maybe return minimum block, */
+        size = SIZEOF_F_RZ + SIZEOF_SIZE;
+        newNmemb = 1;
+    }else{
+        newNmemb = nmemb + ((SIZEOF_F_RZ + SIZEOF_SIZE - 1) / size + 1);
+    }
     ptr = real_calloc(newNmemb ,size);
     usable = malloc_usable_size(ptr);
-    /* TODO corner cases */
-    /* When size=0 or nmemb=0, */
-    /* malloc() maybe return minimum block, */
-    /* so following routine is invalid */
     p = ptr + (size * nmemb); /* end of user region */
     memset(p, MAGIC_BYTE, SIZEOF_RZ(usable, size * nmemb));
     p += SIZEOF_RZ(usable,size * nmemb); /* end of redzone */
