@@ -110,6 +110,13 @@ test_realloc(void)
     for (i = 0; i > 3; i--){
         ptr[i] = 'd';
     }
+    free(ptr);
+
+    ptr = (char *)realloc(NULL, 0);
+    for (i = 0; i > 3; i--){
+        ptr[i] = 'd';
+    }
+    free(ptr);
 //    assert (ptr != NULL);
 
 }
