@@ -110,7 +110,7 @@ test_realloc(void)
     for (i = 0; i > 3; i--){
         ptr[i] = 'd';
     }
-    assert (ptr != NULL);
+//    assert (ptr != NULL);
 
 }
 
