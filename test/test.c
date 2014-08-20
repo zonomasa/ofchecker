@@ -133,7 +133,6 @@ test_calloc(void)
         ptr[i] = 'b';
     free(ptr);
 
-    /* TODO */
     ptr = (char *)calloc(6,0);
     for (i = 0; i < 8; i++)
         ptr[i] = 'b';
