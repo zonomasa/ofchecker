@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <malloc.h>
 
 #define TESTLOG(s) do{                           \
         fprintf(stdout,s);                       \
@@ -123,7 +124,6 @@ test_free(void)
 {
 
     void *ptr;
-    printf("hoge\n");
     ptr = NULL;
     free(ptr);
 
@@ -202,13 +202,12 @@ test_realloc(void)
     }
     TESTLOG("passed\n");
 
-
     TESTLOG("[TEST] realloc_07 ...\n");
     /* over fixed-redzone and break size info */
     ptr = (char *)malloc(108);
     ptr = (char *)realloc(ptr, 24);
     for (i = 0; i < 32; i++){
-        ptr[i] = 'a';
+        ptr[i] = 'z';
     }
     free(ptr);
     assert(ofc_getCount()  == 8);
@@ -248,93 +247,21 @@ test_realloc(void)
 
     TESTLOG("[TEST] realloc_11 ...\n");
     ptr = (char *)realloc(NULL, 0);
-    for (i = 0; i > 3; i--){
-        ptr[i] = 'd';
-    }
-    free(ptr);
-    assert(ofc_getCount()  == 3);
+    assert(malloc_usable_size(ptr)  == 0);
     TESTLOG("passed\n");
 
     TESTLOG("[TEST] realloc_12 ...\n");
-    /* corner case :size = 0 */
+    /* If size is 0, realloc() acts like free(). */
+    /* So it should detect overflow */
     ptr = (char *)malloc(3);
-    for (i = 0; i > 8; i--){
+    for (i = 0; i < 8; i++){
         ptr[i] = 'z';
     }
     ptr = (char *)realloc(ptr, 0);
     assert(ofc_getCount()  == 5);
     TESTLOG("passed\n");
 
-    TESTLOG("[TEST] realloc_07 ...\n");
-    ptr = (char *)malloc(3);
-    ptr = (char *)realloc(ptr, 0);
-    if (ptr != NULL){
-        for (i = 0; i < 8; i++){
-            ptr[i] = 'z';
-        }
-    }
-    free(ptr);
-    if (ptr != NULL){
-        assert(ofc_getCount()  == 8);
-    }
-    TESTLOG("passed\n");
-
-    assert(0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    ptr = (char *)malloc(7);
-    ptr = (char *)realloc(ptr, 8);
-    for (i = 0; i < 16; i++){
-        ptr[i] = 'a';
-    }
-    free(ptr);
-
-    ptr = (char *)malloc(3);
-    ptr = (char *)realloc(ptr, 4);
-    for (i = 0; i < 8; i++){
-        ptr[i] = 'b';
-    }
-    free(ptr);
-
-    ptr = (char *)malloc(48);
-    ptr = (char *)realloc(ptr, 24);
-    for (i = 0; i < 32; i++){
-        ptr[i] = 'a';
-    }
-    free(ptr);
-
-    ptr = (char *)malloc(3);
-    ptr = (char *)realloc(ptr, 4);
-    for (i = 0; i > 8; i--){
-        ptr[i] = 'd';
-    }
-    free(ptr);
-
-    free(ptr);
-
-//    assert (ptr != NULL);
-
+    return;
 }
 
 
@@ -344,21 +271,102 @@ test_calloc(void)
     char *ptr;
     int   i;
 
-    ptr = (char *)calloc(0,144);
-    for (i = 0; i < 8; i++)
-        ptr[i] = 'b';
+    TESTLOG("[TEST] calloc_01 ...\n");
+    ptr = (char *)calloc(1,8);
+    for (i = 0; i < 16; i++)
+        ptr[i] = 'z';
     free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
 
+    TESTLOG("[TEST] calloc_02 ...\n");
+    ptr = (char *)calloc(2,4);
+    for (i = 0; i < 16; i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
+
+
+    TESTLOG("[TEST] calloc_03 ...\n");
+    ptr = (char *)calloc(1,5);
+    for (i = 0; i < 16; i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 11);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_03 ...\n");
+    ptr = (char *)calloc(5,1);
+    for (i = 0; i < 16; i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_04 ...\n");
+    ptr = (char *)calloc(1,1024);
+    for (i = 0; i < 1032; i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_05 ...\n");
+    ptr = (char *)calloc(1,256 * 1024);
+    for (i = 0; i < (256 * 1024) + 8; i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_06 ...\n");
+    ptr = (char *)calloc(1,8);
+    for (i = 0; i < 8; i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 0);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_07 ...\n");
+    ptr = (char *)calloc(1,1024);
+    for (i = 0; i < 1024; i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 0);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_08 ...\n");
+    ptr = (char *)calloc(1,256 * 1024);
+    for (i = 0; i < (256 * 1024); i++)
+        ptr[i] = 'z';
+    free(ptr);
+    assert(ofc_getCount()  == 0);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_09 ...\n");
     ptr = (char *)calloc(6,0);
     for (i = 0; i < 8; i++)
         ptr[i] = 'b';
     free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
 
-    ptr = (char *)calloc(6,144);
-    for (i = 0; i < 6*144; i++)
+    TESTLOG("[TEST] calloc_10 ...\n");
+    ptr = (char *)calloc(0,6);
+    for (i = 0; i < 8; i++)
         ptr[i] = 'b';
-
     free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] calloc_10 ...\n");
+    ptr = (char *)calloc(0,0);
+    for (i = 0; i < 8; i++)
+        ptr[i] = 'b';
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
 
     return;
 }
@@ -371,8 +379,8 @@ main(void)
     test_calloc();
     test_free();
     fflush(stdout);
-    printf("######################");
-    printf("#### End of Tests ####");
-    printf("######################");
+    TESTLOG("######################\n");
+    TESTLOG("#### End of Tests ####\n");
+    TESTLOG("######################\n");
     return 0;
 }

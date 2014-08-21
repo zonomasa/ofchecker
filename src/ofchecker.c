@@ -190,7 +190,7 @@ realloc(void *ptr, size_t size)
 void *
 calloc(size_t nmemb, size_t size)
 {
-    size_t   newNmemb,usable;
+    size_t   newNmemb,newSize,usable;
     void    *ptr, *p;
 
     while(real_calloc == NULL){
@@ -206,14 +206,15 @@ calloc(size_t nmemb, size_t size)
         /* corner cases */
         /* When size=0 or nmemb=0, */
         /* malloc() maybe return minimum block, */
-        size = SIZEOF_F_RZ + SIZEOF_SIZE;
+        newSize = SIZEOF_F_RZ + SIZEOF_SIZE;
         newNmemb = 1;
     }else{
+        newSize = size;
         newNmemb = nmemb + ((SIZEOF_F_RZ + SIZEOF_SIZE - 1) / size + 1);
     }
-    ptr = real_calloc(newNmemb ,size);
+    ptr = real_calloc(newNmemb ,newSize);
     usable = malloc_usable_size(ptr);
-    p = ptr + (size * nmemb); /* end of user region */
+    p = ((char*)ptr + (size * nmemb)); /* end of user region */
     memset(p, MAGIC_BYTE, SIZEOF_RZ(usable, size * nmemb));
     p += SIZEOF_RZ(usable,size * nmemb); /* end of redzone */
     *(size_t *)p = size * nmemb;
@@ -242,8 +243,6 @@ unsigned int
 ofc_getCount()
 {
     unsigned int ret;
-
-    printf("OFCC:%u\n",ofc_count);
     ret = ofc_count;
     ofc_count = 0;
     return ret;
