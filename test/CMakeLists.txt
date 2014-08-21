@@ -15,5 +15,6 @@ set(CMAKE_C_FLAGS_DEBUG "-Wall -Wextra -g")
 link_directories(../src)
 
 add_executable(ofc_test test.c)
-# target_link_libraries(ofc_test ofc)
+target_link_libraries(ofc_test ofc)
+target_link_libraries(ofc_test ofcbt)
 

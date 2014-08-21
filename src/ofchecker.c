@@ -60,6 +60,8 @@ static int   (* real_posix_memalign)(void *ptr, size_t size);
 extern void ofc_bt(void);
 
 static int  initializing = 0;
+static int  ofc_count = 0;    /* for testing */
+
 
 static void
 __init(void)
@@ -125,6 +127,7 @@ free(void *ptr)
             cnt++;
     }
     if (cnt == SIZEOF_F_RZ){
+        ofc_count = cnt; /* for testing */
         /* Maybe size info was broken */
         OFC_DUMP_COUNT_MAYBE(cnt);
         ofc_bt();
@@ -139,6 +142,7 @@ free(void *ptr)
             cnt++;
     }
     if (cnt){
+        ofc_count = cnt; /* for testing */
         OFC_DUMP_COUNT(cnt);
         OFC_DUMP_INFO(ptr,size);
         ofc_bt();
@@ -226,4 +230,21 @@ posix_memalign(void **memptr, size_t alignment, size_t size)
     OFC_UNUSE(size);
     fprintf(stderr,"posix_memalign not supported...\n");
     exit(-1);
+}
+
+
+/**
+ * Return overflowed byte in last free().
+ * - Thread unsafe
+ * - For testging.
+ */
+unsigned int
+ofc_getCount()
+{
+    unsigned int ret;
+
+    printf("OFCC:%u\n",ofc_count);
+    ret = ofc_count;
+    ofc_count = 0;
+    return ret;
 }
