@@ -55,7 +55,7 @@ static void  (* real_free)(void *ptr);
 static void *(* real_realloc)(void *ptr, size_t size);
 static void *(* real_calloc)(size_t nmemb, size_t size);
 #ifdef _MEMALIGN
-static int   (* real_posix_memalign)(void *ptr, size_t size);
+static int   (* real_posix_memalign)(void **memptr, size_t alignment, size_t size);
 #endif
 extern void ofc_bt(void);
 
@@ -226,11 +226,32 @@ calloc(size_t nmemb, size_t size)
 int
 posix_memalign(void **memptr, size_t alignment, size_t size)
 {
-    OFC_UNUSE(memptr);
-    OFC_UNUSE(alignment);
-    OFC_UNUSE(size);
-    fprintf(stderr,"posix_memalign not supported...\n");
-    exit(-1);
+    size_t      usable;
+    void       *p;
+    int         ret;
+
+    while(real_posix_memalign == NULL){
+        if(!initializing){
+            initializing = 1;
+            __init();
+            initializing = 0;
+        }
+        sched_yield();
+    }
+
+
+    ret = real_posix_memalign(memptr, alignment,
+                              size + SIZEOF_F_RZ + SIZEOF_SIZE);
+    if (ret != 0)
+        return ret;
+
+    usable = malloc_usable_size(*memptr);
+    p = *memptr + size; /* end of user region */
+    memset(p, MAGIC_BYTE, SIZEOF_RZ(usable, size));
+    p += SIZEOF_RZ(usable,size); /* end of redzone */
+    *(size_t *)p = size;
+    OFC_DUMP(*memptr, usable, size);
+    return 0;
 }
 
 

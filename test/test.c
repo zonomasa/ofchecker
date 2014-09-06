@@ -371,6 +371,27 @@ test_calloc(void)
     return;
 }
 
+
+void
+test_posix_memalign(void)
+{
+    char *ptr;
+    int   i;
+    
+
+    TESTLOG("#### posix_memalign ####\n");
+
+    TESTLOG("[TEST] posix_memalign_01 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 128) == 0);
+    for (i = 0; i < 129; i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 1);
+    TESTLOG("passed\n");
+
+}
+
 int
 main(void)
 {
@@ -378,6 +399,7 @@ main(void)
     test_realloc();
     test_calloc();
     test_free();
+    test_posix_memalign();
     fflush(stdout);
     TESTLOG("######################\n");
     TESTLOG("#### End of Tests ####\n");
