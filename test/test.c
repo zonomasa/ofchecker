@@ -390,6 +390,14 @@ test_posix_memalign(void)
     assert(ofc_getCount()  == 1);
     TESTLOG("passed\n");
 
+    TESTLOG("[TEST] posix_memalign_02 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 1024) == 0);
+    for (i = 0; i < 1032; i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
 }
 
 int
