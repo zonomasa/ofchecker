@@ -398,6 +398,87 @@ test_posix_memalign(void)
     free(ptr);
     assert(ofc_getCount()  == 8);
     TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_03 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 256 * 1024) == 0);
+    for (i = 0; i < (256 * 1024) + 8; i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_04 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 11) == 0);
+    for (i = 0; i < 16; i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 5);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_05 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 11) == 0);
+    for (i = 0; i < 20; i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 9);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_06 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 0) == 0);
+    if (ptr != NULL){
+        for (i = 0; i < 8; i++){
+            ptr[i] = 'z';
+        }
+    }
+    free(ptr);
+    if (ptr != NULL){
+        assert(ofc_getCount()  == 8);
+    }
+    TESTLOG("passed\n");
+
+
+    TESTLOG("[TEST] posix_memalign_07 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 24) == 0);
+    /* over fixed-redzone and break size info */
+    for (i = 0; i < 32; i++){
+        ptr[i] = 'a';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 8);
+    TESTLOG("passed\n");
+
+    /* No overflow */
+    TESTLOG("[TEST] posix_memalign_08 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 8) == 0);
+    for (i = 0; i < 8; i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 0);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_09 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 1024) == 0);
+    for (i = 0; i < 1024; i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 0);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_09 ...\n");
+    assert(posix_memalign((void**)&ptr, 64, 256 * 1024) == 0);
+    for (i = 0; i < (256 * 1024); i++){
+        ptr[i] = 'z';
+    }
+    free(ptr);
+    assert(ofc_getCount()  == 0);
+    TESTLOG("passed\n");
+
+    return;
 }
 
 int
