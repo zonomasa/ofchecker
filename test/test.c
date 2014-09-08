@@ -3,6 +3,7 @@
 #include <string.h>
 #include <assert.h>
 #include <malloc.h>
+#include <errno.h>
 
 #define TESTLOG(s) do{                           \
         fprintf(stdout,s);                       \
@@ -377,7 +378,7 @@ test_posix_memalign(void)
 {
     char *ptr;
     int   i;
-    
+
 
     TESTLOG("#### posix_memalign ####\n");
 
@@ -469,7 +470,7 @@ test_posix_memalign(void)
     assert(ofc_getCount()  == 0);
     TESTLOG("passed\n");
 
-    TESTLOG("[TEST] posix_memalign_09 ...\n");
+    TESTLOG("[TEST] posix_memalign_10 ...\n");
     assert(posix_memalign((void**)&ptr, 64, 256 * 1024) == 0);
     for (i = 0; i < (256 * 1024); i++){
         ptr[i] = 'z';
@@ -477,6 +478,16 @@ test_posix_memalign(void)
     free(ptr);
     assert(ofc_getCount()  == 0);
     TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_11 ...\n");
+    assert(posix_memalign((void**)&ptr, 63, 256 * 1024) == EINVAL);
+    TESTLOG("passed\n");
+
+/*
+    TESTLOG("[TEST] posix_memalign_12 ...\n");
+    assert(posix_memalign((void**)&ptr, 63, 2 * 1024 * 1024 * 1024) == ENOMEM);
+    TESTLOG("passed\n");
+*/
 
     return;
 }
