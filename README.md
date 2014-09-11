@@ -4,6 +4,16 @@ ofchecker
 Lightweight overflow checker.
 
 Simply detect memory corruption as we say OVERFLOW.
+q
+You can get following information about overflow.
+
+ * Overflow bytes
+
+ * Memory address of the block
+
+ * Block size
+
+ * Backtrace(with filename : line-number)
 
 
 Detail
@@ -43,9 +53,13 @@ $ ./bin/ofchecker ./test/ofc_test
 <ofchecker> : ***   End backtrace  ***
 ```
 
+ofcheker provides multiple byte overflow detection and showing backtrace when overflow is detected.
+
 When you call malloc(), ofchecker simply add extra region(red-zone) after your payload filled by magic word, and when free(), check the red-zone wheter be overwritten or not.
 
-ofchecker provides glibc like malloc(), calloc(), realloc() and free(). The functions creates or checks red-zone and then call glibc real malloc()(or calloc(), realloc(), free()). So you can use ofchecker by linking to your applications directly or by LD_PRELOAD.
+ofchecker provides glibc like malloc(), calloc(), realloc(), posix_memalign() and free(). The functions creates or checks red-zone and then call glibc real malloc()(or calloc(), realloc(), free()). So you can use ofchecker by linking to your applications directly or by using LD_PRELOAD.
+
+In addition, ofchecker script convert `memory addresses in backtrace` to `filename:line-number`.
 
 Build from Source
 -----------------
