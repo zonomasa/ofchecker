@@ -377,8 +377,7 @@ void
 test_posix_memalign(void)
 {
     char *ptr;
-    int   i;
-
+    int   i,j;
 
     TESTLOG("#### posix_memalign ####\n");
 
@@ -482,6 +481,19 @@ test_posix_memalign(void)
     TESTLOG("[TEST] posix_memalign_11 ...\n");
     assert(posix_memalign((void**)&ptr, 63, 256 * 1024) == EINVAL);
     TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_12 ...\n");
+    for (i = 1; i <= 10; i++){
+        printf("i=%d\n",i);
+        assert(posix_memalign((void**)&ptr, 4<<i, 256 * 1024) == 0);
+        for (j = 0; j < (256 * 1024)+1; j++){
+            ptr[j] = 'z';
+        }
+        free(ptr);
+        assert(ofc_getCount()  == 1);
+    }
+    TESTLOG("passed\n");
+
 
 /*
     TESTLOG("[TEST] posix_memalign_12 ...\n");
