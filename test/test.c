@@ -5,6 +5,10 @@
 #include <malloc.h>
 #include <errno.h>
 
+#if _POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600
+#define _MEMALIGN
+#endif
+
 #define TESTLOG(s) do{                           \
         fprintf(stdout,s);                       \
         fflush(stdout);                          \
@@ -372,7 +376,7 @@ test_calloc(void)
     return;
 }
 
-
+#ifdef _MEMALIGN
 void
 test_posix_memalign(void)
 {
@@ -494,15 +498,10 @@ test_posix_memalign(void)
     }
     TESTLOG("passed\n");
 
-
-/*
-    TESTLOG("[TEST] posix_memalign_12 ...\n");
-    assert(posix_memalign((void**)&ptr, 63, 2 * 1024 * 1024 * 1024) == ENOMEM);
-    TESTLOG("passed\n");
-*/
-
     return;
 }
+#endif
+
 
 int
 main(void)

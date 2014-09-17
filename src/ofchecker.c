@@ -73,7 +73,6 @@ __init(void)
 #ifdef _MEMALIGN
     real_posix_memalign = dlsym(RTLD_NEXT, "posix_memalign");
 #endif
-
 }
 
 
