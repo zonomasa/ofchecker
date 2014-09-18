@@ -486,6 +486,8 @@ test_posix_memalign(void)
     assert(posix_memalign((void**)&ptr, 63, 256 * 1024) == EINVAL);
     TESTLOG("passed\n");
 
+
+
     TESTLOG("[TEST] posix_memalign_12 ...\n");
     for (i = 1; i <= 10; i++){
         printf("i=%d\n",i);
@@ -497,6 +499,16 @@ test_posix_memalign(void)
         assert(ofc_getCount()  == 1);
     }
     TESTLOG("passed\n");
+
+
+    TESTLOG("[TEST] posix_memalign_13 ...\n");
+    assert(posix_memalign((void**)&ptr, 0, 256 * 1024) == EINVAL);
+    TESTLOG("passed\n");
+
+    TESTLOG("[TEST] posix_memalign_14 ...\n");
+    assert(posix_memalign((void**)&ptr, 1, 256 * 1024) == EINVAL);
+    TESTLOG("passed\n");
+
 
     return;
 }
