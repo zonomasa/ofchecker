@@ -8,14 +8,24 @@ while read line; do
     if [[ "$line" =~ \[0x[0-9a-f]*\] ]];then
 #        echo "$line" > /dev/stderr
         file=`echo $line | grep -o -E '^[^[]*'|grep -o -E '^[^(]*'`
-        addr=`echo $line | grep -o -E '\[0x[0-9a-z]+\]'|sed -e 's/\[//g' -e 's/\]//g'`
+
+        func=`echo $line | grep -o -E '\([^\+]+\+' | sed -e 's/(//g' -e 's/+//g'`
+#        func_and_offset=`echo $line | grep -o -E '\([^)]+\)' `
+        
 #        echo $file
 #        echo $addr
+        if [[ "$file" =~ \.so[\.^\(]* ]];then
+            offset=`echo $line | grep -o -E '\+[^)]+\)' | sed -e 's/+//g' -e 's/)//g'`
+            base=`nm $file 2> /dev/null |grep $func |grep " T " | awk '{print $1}'`
+            addr=$(printf "%#x\n" $(( (0x$base) + ($offset) )))
+        else
+            addr=`echo $line | grep -o -E '\[0x[0-9a-z]+\]'|sed -e 's/\[//g' -e 's/\]//g'`
+        fi
         ret=`addr2line -e $file $addr`
         if [[ "$ret" =~ ^\?\? ]]; then
             echo "$line" > /dev/stderr
         else
-            echo "$ret"  > /dev/stderr
+            echo "$func() ($ret) "  > /dev/stderr
         fi
     else
         echo "$line"   > /dev/stderr
