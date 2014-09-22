@@ -14,7 +14,8 @@
         fflush(stdout);                          \
     }while(0)
 
-extern unsigned int ofc_getCount();
+extern unsigned int ofc_getCount(void);
+extern void test_from_shared_lib(void);
 
 void
 test_malloc(void)
@@ -523,6 +524,8 @@ main(void)
     test_calloc();
     test_free();
     test_posix_memalign();
+    test_from_shared_lib();
+
     fflush(stdout);
     TESTLOG("######################\n");
     TESTLOG("#### End of Tests ####\n");
