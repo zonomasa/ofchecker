@@ -1,5 +1,7 @@
 #!/bin/bash
 
+OUTPUT=/dev/stderr   # /dev/stdout or /dev/stderr
+
 CURDIR=`dirname $0`
 echo $CURDIR
 
@@ -11,9 +13,6 @@ while read line; do
 
         func=`echo $line | grep -o -E '\([^\+]+\+' | sed -e 's/(//g' -e 's/+//g'`
 #        func_and_offset=`echo $line | grep -o -E '\([^)]+\)' `
-        
-#        echo $file
-#        echo $addr
         if [[ "$file" =~ \.so[\.^\(]* ]];then
             offset=`echo $line | grep -o -E '\+[^)]+\)' | sed -e 's/+//g' -e 's/)//g'`
             base=`nm $file 2> /dev/null |grep $func |grep " T " | awk '{print $1}'`
@@ -23,12 +22,12 @@ while read line; do
         fi
         ret=`addr2line -e $file $addr`
         if [[ "$ret" =~ ^\?\? ]]; then
-            echo "$line" > /dev/stderr
+            echo "$line" > $OUTPUT
         else
-            echo "$func() ($ret) "  > /dev/stderr
+            echo "$func() ($ret) "  > $OUTPUT
         fi
     else
-        echo "$line"   > /dev/stderr
+        echo "$line"   > $OUTPUT
     fi
 #    echo "$line"
 done
