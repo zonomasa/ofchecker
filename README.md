@@ -98,7 +98,6 @@ TODO
 
  * Now Prototype version.
    * Delete Debug message.
-   * Add posix_memalign.
 
 
 Contributing
